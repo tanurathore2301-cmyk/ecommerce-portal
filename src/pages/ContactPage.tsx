@@ -50,17 +50,17 @@ export const ContactPage: React.FC = () => {
             {
               icon: FiMapPin,
               title: 'Address',
-              content: '123 Shopping Street, NY 10001',
+              content: 'Bilaspur, Chhattisgarh, India',
             },
             {
               icon: FiPhone,
               title: 'Phone',
-              content: '+1 (555) 123-4567',
+              content: '+91 987654321',
             },
             {
               icon: FiMail,
               title: 'Email',
-              content: 'support@shophub.com',
+              content: 'support@styla.com',
             },
           ].map((info, index) => (
             <motion.div

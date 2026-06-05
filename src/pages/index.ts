@@ -6,4 +6,6 @@ export { WishlistPage } from './WishlistPage';
 export { CategoriesPage } from './CategoriesPage';
 export { AboutPage } from './AboutPage';
 export { ContactPage } from './ContactPage';
+export { LoginPage } from './LoginPage';
+export { SignupPage } from './SignupPage';
 export { NotFoundPage } from './NotFoundPage';

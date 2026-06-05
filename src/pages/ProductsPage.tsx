@@ -1,64 +1,85 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { MOCK_PRODUCTS } from '@data/mockProducts';
+import { FiChevronDown, FiChevronUp, FiFilter } from 'react-icons/fi';
+import { MOCK_PRODUCTS, CATEGORIES, CATEGORY_ORDER } from '@data/mockProducts';
 import { ProductGrid } from '@components/products';
 import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
-import { setSearchQuery, setCategory, setPriceRange, setMinRating, setSortBy, resetFilters } from '@store/slices/filterSlice';
+import { setCategory, setPriceRange, setMinRating, setSortBy, resetFilters } from '@store/slices/filterSlice';
 import { filterAndSortProducts } from '@utils/productUtils';
+import { formatPrice } from '@utils/productUtils';
+import { FALLBACK_IMAGE } from '@utils/productImages';
 import { Button } from '@components/common';
+
+const CATEGORIES_LIST = ['Clothes', 'Footwear', 'Beauty'] as const;
 
 export const ProductsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const filters = useAppSelector(state => state.filters);
+  const [searchParams] = useSearchParams();
   const [expandedFilters, setExpandedFilters] = useState({ category: true, price: true, rating: true, sort: true });
+
+  useEffect(() => {
+    const categoryParam = searchParams.get('category');
+    if (categoryParam && CATEGORIES_LIST.includes(categoryParam as typeof CATEGORIES_LIST[number])) {
+      dispatch(setCategory(categoryParam));
+    }
+  }, [searchParams, dispatch]);
 
   const filteredProducts = useMemo(
     () => filterAndSortProducts(MOCK_PRODUCTS, filters.filters),
     [filters.filters]
   );
 
-  const categories = ['Electronics', 'Fashion', 'Home & Living', 'Sports', 'Beauty'];
+  const showGroupedSections = !filters.selectedCategory;
 
   const toggleFilter = (filter: keyof typeof expandedFilters) => {
     setExpandedFilters(prev => ({ ...prev, [filter]: !prev[filter] }));
   };
 
+  const getCategoryMeta = (name: string) => CATEGORIES.find(c => c.name === name);
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="container mx-auto px-4">
-        <motion.h1
+    <div className="min-h-screen bg-gradient-to-br from-pink-50/50 via-white to-purple-50/50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950 py-8">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-bold mb-2"
+          className="mb-8"
         >
-          All Products
-        </motion.h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Showing {filteredProducts.length} of {MOCK_PRODUCTS.length} products
-        </p>
+          <h1 className="text-4xl font-bold mb-2 text-gradient">All Products</h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Showing {filteredProducts.length} of {MOCK_PRODUCTS.length} products
+            {filters.selectedCategory && (
+              <span className="ml-1">in <strong>{filters.selectedCategory}</strong></span>
+            )}
+          </p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
           {/* Filters Sidebar */}
           <motion.aside
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-1"
+            className="lg:sticky lg:top-24"
           >
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md sticky top-24">
-              <h3 className="text-lg font-bold mb-4">Filters</h3>
+            <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl p-5 shadow-md border border-gray-100 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-5 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <FiFilter className="text-primary-500" />
+                <h3 className="text-lg font-bold">Filters</h3>
+              </div>
 
               {/* Sort By */}
-              <div className="mb-6">
+              <div className="mb-5">
                 <button
                   onClick={() => toggleFilter('sort')}
-                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3"
+                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3 text-sm"
                 >
                   Sort By
-                  {expandedFilters.sort ? <FiChevronUp /> : <FiChevronDown />}
+                  {expandedFilters.sort ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
                 </button>
                 {expandedFilters.sort && (
-                  <div className="space-y-2">
+                  <div className="space-y-2.5 pl-1">
                     {[
                       { label: 'Popularity', value: 'popularity' },
                       { label: 'Price: Low to High', value: 'price-low' },
@@ -66,16 +87,18 @@ export const ProductsPage: React.FC = () => {
                       { label: 'Newest', value: 'newest' },
                       { label: 'Rating', value: 'rating' },
                     ].map(option => (
-                      <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                      <label key={option.value} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="radio"
                           name="sort"
                           value={option.value}
                           checked={filters.sortBy === option.value}
-                          onChange={e => dispatch(setSortBy(e.target.value as any))}
-                          className="cursor-pointer"
+                          onChange={e => dispatch(setSortBy(e.target.value as typeof filters.sortBy))}
+                          className="w-4 h-4 accent-primary-500 cursor-pointer shrink-0"
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors">
+                          {option.label}
+                        </span>
                       </label>
                     ))}
                   </div>
@@ -83,64 +106,91 @@ export const ProductsPage: React.FC = () => {
               </div>
 
               {/* Category Filter */}
-              <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => toggleFilter('category')}
-                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3"
+                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3 text-sm"
                 >
                   Category
-                  {expandedFilters.category ? <FiChevronUp /> : <FiChevronDown />}
+                  {expandedFilters.category ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
                 </button>
                 {expandedFilters.category && (
                   <div className="space-y-2">
-                    {categories.map(cat => (
-                      <label key={cat} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={filters.selectedCategory === cat}
-                          onChange={e => dispatch(setCategory(e.target.checked ? cat : null))}
-                          className="cursor-pointer"
+                    <button
+                      onClick={() => dispatch(setCategory(null))}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left ${
+                        !filters.selectedCategory
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/30'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                      }`}
+                    >
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">All Categories</span>
+                    </button>
+                    {CATEGORIES.map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => dispatch(setCategory(cat.name))}
+                        className={`w-full flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left ${
+                          filters.selectedCategory === cat.name
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/30'
+                            : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
+                        }`}
+                      >
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="w-10 h-10 rounded-lg object-cover shrink-0"
+                          onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">{cat}</span>
-                      </label>
+                        <div className="min-w-0">
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block">
+                            {cat.name}
+                          </span>
+                          <span className="text-xs text-gray-500">{cat.productCount} items</span>
+                        </div>
+                      </button>
                     ))}
                   </div>
                 )}
               </div>
 
               {/* Price Filter */}
-              <div className="mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="mb-5 pb-5 border-b border-gray-200 dark:border-gray-700">
                 <button
                   onClick={() => toggleFilter('price')}
-                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3"
+                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3 text-sm"
                 >
                   Price Range
-                  {expandedFilters.price ? <FiChevronUp /> : <FiChevronDown />}
+                  {expandedFilters.price ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
                 </button>
                 {expandedFilters.price && (
-                  <div className="space-y-3">
+                  <div className="space-y-4 px-1">
+                    <div className="flex justify-between items-center text-xs font-medium text-gray-600 dark:text-gray-400">
+                      <span>{formatPrice(filters.priceRange[0])}</span>
+                      <span>{formatPrice(filters.priceRange[1])}</span>
+                    </div>
                     <div>
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Min: ${filters.priceRange[0]}</label>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 block">Minimum</label>
                       <input
                         type="range"
                         min="0"
                         max="10000"
-                        step="50"
+                        step="100"
                         value={filters.priceRange[0]}
                         onChange={e => dispatch(setPriceRange([Number(e.target.value), filters.priceRange[1]]))}
-                        className="w-full"
+                        className="w-full h-2 accent-primary-500 cursor-pointer"
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-600 dark:text-gray-400">Max: ${filters.priceRange[1]}</label>
+                      <label className="text-xs text-gray-500 dark:text-gray-400 mb-1.5 block">Maximum</label>
                       <input
                         type="range"
                         min="0"
                         max="10000"
-                        step="50"
+                        step="100"
                         value={filters.priceRange[1]}
                         onChange={e => dispatch(setPriceRange([filters.priceRange[0], Number(e.target.value)]))}
-                        className="w-full"
+                        className="w-full h-2 accent-primary-500 cursor-pointer"
                       />
                     </div>
                   </div>
@@ -148,26 +198,26 @@ export const ProductsPage: React.FC = () => {
               </div>
 
               {/* Rating Filter */}
-              <div className="mb-6">
+              <div className="mb-5">
                 <button
                   onClick={() => toggleFilter('rating')}
-                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3"
+                  className="flex justify-between items-center w-full font-semibold text-gray-900 dark:text-white mb-3 text-sm"
                 >
                   Min Rating
-                  {expandedFilters.rating ? <FiChevronUp /> : <FiChevronDown />}
+                  {expandedFilters.rating ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
                 </button>
                 {expandedFilters.rating && (
-                  <div className="space-y-2">
-                    {[0, 1, 2, 3, 4, 5].map(rating => (
-                      <label key={rating} className="flex items-center gap-2 cursor-pointer">
+                  <div className="space-y-2.5 pl-1">
+                    {[0, 3, 4, 5].map(rating => (
+                      <label key={rating} className="flex items-center gap-3 cursor-pointer group">
                         <input
                           type="radio"
                           name="rating"
                           checked={filters.minRating === rating}
                           onChange={() => dispatch(setMinRating(rating))}
-                          className="cursor-pointer"
+                          className="w-4 h-4 accent-primary-500 cursor-pointer shrink-0"
                         />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                        <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-primary-600 transition-colors">
                           {rating === 0 ? 'All Ratings' : `${rating}★ & Up`}
                         </span>
                       </label>
@@ -176,7 +226,6 @@ export const ProductsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Reset Button */}
               <Button
                 variant="outline"
                 onClick={() => dispatch(resetFilters())}
@@ -187,17 +236,55 @@ export const ProductsPage: React.FC = () => {
             </div>
           </motion.aside>
 
-          {/* Products Grid */}
-          <div className="lg:col-span-3">
+          {/* Products Area */}
+          <div className="min-w-0">
             {filteredProducts.length > 0 ? (
-              <ProductGrid products={filteredProducts} columns={3} />
+              showGroupedSections ? (
+                <div className="space-y-14">
+                  {CATEGORY_ORDER.map(cat => {
+                    const sectionProducts = filteredProducts.filter(p => p.category === cat);
+                    if (sectionProducts.length === 0) return null;
+                    const meta = getCategoryMeta(cat);
+                    return (
+                      <section key={cat}>
+                        <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                          {meta && (
+                            <img
+                              src={meta.image}
+                              alt={cat}
+                              className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover shadow-md ring-2 ring-primary-200 dark:ring-primary-800 shrink-0"
+                              onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                            />
+                          )}
+                          <div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-gradient">{cat}</h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                              {sectionProducts.length} product{sectionProducts.length !== 1 ? 's' : ''}
+                            </p>
+                          </div>
+                        </div>
+                        <ProductGrid products={sectionProducts} columns={4} />
+                      </section>
+                    );
+                  })}
+                </div>
+              ) : (
+                <ProductGrid products={filteredProducts} columns={4} />
+              )
             ) : (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center py-12"
+                className="text-center py-16 bg-white/60 dark:bg-gray-800/60 rounded-2xl"
               >
                 <p className="text-gray-600 dark:text-gray-400 text-lg">No products found matching your filters.</p>
+                <Button
+                  variant="primary"
+                  onClick={() => dispatch(resetFilters())}
+                  className="mt-4"
+                >
+                  Clear Filters
+                </Button>
               </motion.div>
             )}
           </div>

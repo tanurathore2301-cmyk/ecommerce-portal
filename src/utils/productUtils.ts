@@ -54,9 +54,10 @@ export const filterAndSortProducts = (products: Product[], filter: SearchFilter)
 };
 
 export const formatPrice = (price: number): string => {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
+    maximumFractionDigits: 0,
   }).format(price);
 };
 
@@ -65,9 +66,9 @@ export const calculateDiscount = (original: number, current: number): number => 
 };
 
 export const getShippingCost = (subtotal: number): number => {
-  if (subtotal > 100) return 0;
-  if (subtotal > 50) return 5;
-  return 10;
+  if (subtotal > 8000) return 0;
+  if (subtotal > 4000) return 49;
+  return 99;
 };
 
 export const calculateTax = (subtotal: number): number => {

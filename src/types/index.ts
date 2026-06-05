@@ -7,7 +7,7 @@ export interface Product {
   images?: string[];
   rating: number;
   reviewCount: number;
-  category: 'Electronics' | 'Fashion' | 'Home & Living' | 'Sports' | 'Beauty';
+  category: 'Clothes' | 'Footwear' | 'Beauty';
   description: string;
   features?: string[];
   inStock: boolean;
@@ -36,8 +36,9 @@ export interface SearchFilter {
 
 export interface CategoryType {
   id: string;
-  name: 'Electronics' | 'Fashion' | 'Home & Living' | 'Sports' | 'Beauty';
+  name: 'Clothes' | 'Footwear' | 'Beauty';
   icon: string;
+  image: string;
   color: string;
   productCount: number;
 }

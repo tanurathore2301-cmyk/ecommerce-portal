@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from './hooks/useRedux';
 import { setTheme } from './store/slices/themeSlice';
-import { Header, Footer } from './components/layout';
+import { Header, Footer, ScrollToTop } from './components/layout';
 import { ToastContainer } from './components/common';
 import {
   HomePage,
@@ -13,6 +13,8 @@ import {
   CategoriesPage,
   AboutPage,
   ContactPage,
+  LoginPage,
+  SignupPage,
   NotFoundPage,
 } from './pages/index';
 
@@ -31,6 +33,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className={`min-h-screen ${isDark ? 'dark' : ''}`}>
         <div className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50">
           <Header />
@@ -44,6 +47,8 @@ function App() {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </main>
