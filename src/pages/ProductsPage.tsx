@@ -8,8 +8,8 @@ import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
 import { setCategory, setPriceRange, setMinRating, setSortBy, resetFilters } from '@store/slices/filterSlice';
 import { filterAndSortProducts } from '@utils/productUtils';
 import { formatPrice } from '@utils/productUtils';
-import { FALLBACK_IMAGE } from '@utils/productImages';
-import { Button } from '@components/common';
+import { getImageSources } from '@utils/productImages';
+import { Button, SafeImage } from '@components/common';
 
 const CATEGORIES_LIST = ['Clothes', 'Footwear', 'Beauty'] as const;
 
@@ -136,11 +136,11 @@ export const ProductsPage: React.FC = () => {
                             : 'border-gray-200 dark:border-gray-700 hover:border-primary-300'
                         }`}
                       >
-                        <img
-                          src={cat.image}
+                        <SafeImage
+                          sources={getImageSources(cat.image, cat.name, cat.name)}
+                          fallbackLabel={cat.name}
                           alt={cat.name}
                           className="w-10 h-10 rounded-lg object-cover shrink-0"
-                          onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
                         />
                         <div className="min-w-0">
                           <span className="text-sm font-medium text-gray-800 dark:text-gray-200 block">
@@ -249,11 +249,11 @@ export const ProductsPage: React.FC = () => {
                       <section key={cat}>
                         <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                           {meta && (
-                            <img
-                              src={meta.image}
+                            <SafeImage
+                              sources={getImageSources(meta.image, cat, cat)}
+                              fallbackLabel={cat}
                               alt={cat}
                               className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover shadow-md ring-2 ring-primary-200 dark:ring-primary-800 shrink-0"
-                              onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
                             />
                           )}
                           <div>

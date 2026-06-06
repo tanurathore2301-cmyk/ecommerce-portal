@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiAward, FiUsers, FiTrendingUp, FiGlobe, FiShield, FiFileText, FiPackage, FiMail } from 'react-icons/fi';
 import { LEGAL_SECTIONS, LegalSectionId } from '@data/legalContent';
-import { FALLBACK_IMAGE } from '@utils/productImages';
+import { SafeImage } from '@components/common';
+import { pexels, getImageSources } from '@utils/productImages';
 
 const legalNav: { id: LegalSectionId; label: string; icon: React.ElementType }[] = [
   { id: 'privacy-policy', label: 'Privacy Policy', icon: FiShield },
@@ -49,10 +50,11 @@ export const AboutPage: React.FC = () => {
               every purchase exceeds your expectations.
             </p>
           </div>
-          <img
-            src={FALLBACK_IMAGE}
+          <SafeImage
+            sources={getImageSources(pexels(994523, 600, 500), 'Our Mission')}
+            fallbackLabel="Styla"
             alt="Mission"
-            className="rounded-2xl shadow-lg"
+            className="rounded-2xl shadow-lg w-full"
           />
         </motion.section>
 

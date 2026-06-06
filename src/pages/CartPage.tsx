@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { FiTrash2, FiArrowLeft } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
 import { removeFromCart, updateQuantity, clearCart } from '@store/slices/cartSlice';
-import { Button } from '@components/common';
+import { Button, SafeImage } from '@components/common';
+import { getProductImageSources } from '@utils/productImages';
 import { formatPrice, getShippingCost, calculateTax } from '@utils/productUtils';
 import { useToast } from '@hooks/useToast';
 
@@ -78,8 +79,9 @@ export const CartPage: React.FC = () => {
                   transition={{ delay: index * 0.05 }}
                   className="bg-white dark:bg-gray-800 rounded-lg p-4 flex gap-4"
                 >
-                  <img
-                    src={item.product.image}
+                  <SafeImage
+                    sources={getProductImageSources(item.product)}
+                    fallbackLabel={item.product.name}
                     alt={item.product.name}
                     className="w-24 h-24 object-cover rounded"
                   />

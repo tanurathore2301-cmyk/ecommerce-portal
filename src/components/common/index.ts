@@ -4,3 +4,4 @@ export { Skeleton } from './Skeleton';
 export { Toast, ToastContainer } from './Toast';
 export { Modal } from './Modal';
 export { Rating } from './Rating';
+export { SafeImage } from './SafeImage';

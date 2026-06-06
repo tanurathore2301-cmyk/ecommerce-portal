@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiHeart, FiShoppingCart, FiEye } from 'react-icons/fi';
 import { Product } from '@types/index';
-import { Badge, Rating } from '@components/common';
+import { Badge, Rating, SafeImage } from '@components/common';
 import { formatPrice, calculateDiscount } from '@utils/productUtils';
 import { getProductImageSources } from '@utils/productImages';
 import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
@@ -20,16 +20,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { showToast } = useToast();
   const wishlistItems = useAppSelector(state => state.wishlist.items);
   const isWishlisted = wishlistItems.some(item => item.id === product.id);
-
-  const imageSources = getProductImageSources(product);
-  const [sourceIndex, setSourceIndex] = useState(0);
-  const imgSrc = imageSources[sourceIndex] ?? imageSources[imageSources.length - 1];
-
-  const handleImageError = () => {
-    if (sourceIndex < imageSources.length - 1) {
-      setSourceIndex(prev => prev + 1);
-    }
-  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,19 +48,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     >
       <Link to={`/products/${product.id}`} className="block h-full group">
         <div className="h-full flex flex-col bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-100 dark:border-gray-800 p-2.5 shadow-sm hover:shadow-glow-pink hover:border-primary-200 dark:hover:border-primary-800 transition-all duration-300">
-          {/* Image */}
           <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-800 dark:to-purple-900 aspect-square mb-2.5">
-            <img
-              src={imgSrc}
+            <SafeImage
+              sources={getProductImageSources(product)}
+              fallbackLabel={product.name}
               alt={product.name}
-              loading="lazy"
-              referrerPolicy="no-referrer"
               className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-              onError={handleImageError}
             />
 
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3 gap-2">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-3 gap-2 pointer-events-none">
               <span className="flex items-center gap-1 text-white text-xs font-medium bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
                 <FiEye size={12} /> Quick View
               </span>
@@ -106,7 +92,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </div>
 
-          {/* Content */}
           <div className="flex flex-col flex-grow px-0.5">
             <span className="text-[10px] font-semibold text-primary-500 uppercase tracking-wider mb-0.5">
               {product.category}

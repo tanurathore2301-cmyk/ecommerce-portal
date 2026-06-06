@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CATEGORIES, MOCK_PRODUCTS } from '@data/mockProducts';
+import { SafeImage } from '@components/common';
+import { getImageSources, getProductImageSources } from '@utils/productImages';
 
 export const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,8 +37,9 @@ export const CategoriesPage: React.FC = () => {
                 onClick={() => navigate(`/products?category=${category.name}`)}
               >
                 <div className="relative rounded-2xl overflow-hidden shadow-lg hover:shadow-glow-purple transition-all duration-300 h-[420px]">
-                  <img
-                    src={category.image}
+                  <SafeImage
+                    sources={getImageSources(category.image, category.name, category.name)}
+                    fallbackLabel={category.name}
                     alt={category.name}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -46,7 +49,18 @@ export const CategoriesPage: React.FC = () => {
                     <span className="text-4xl mb-3">{category.icon}</span>
                     <h2 className="text-3xl font-bold mb-1">{category.name}</h2>
                     <p className="text-lg opacity-90 font-medium">{categoryProducts.length} Products</p>
-                    <p className="text-sm opacity-75 mt-2 group-hover:translate-x-1 transition-transform">
+                    <div className="mt-4 grid grid-cols-3 gap-2">
+                      {categoryProducts.slice(0, 3).map(product => (
+                        <SafeImage
+                          key={product.id}
+                          sources={getProductImageSources(product)}
+                          fallbackLabel={product.name}
+                          alt={product.name}
+                          className="w-full h-20 rounded-xl object-cover border border-white/70"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm opacity-75 mt-3 group-hover:translate-x-1 transition-transform">
                       Explore collection →
                     </p>
                   </div>

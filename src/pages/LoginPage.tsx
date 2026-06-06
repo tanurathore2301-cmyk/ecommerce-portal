@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiLogIn } from 'react-icons/fi';
-import { Button } from '@components/common';
+import { Button, SafeImage } from '@components/common';
 import { useAppDispatch } from '@hooks/useRedux';
-import { FALLBACK_IMAGE } from '@utils/productImages';
+import { HERO_IMAGE, getImageSources } from '@utils/productImages';
 import { login } from '@store/slices/authSlice';
 import { useToast } from '@hooks/useToast';
 
@@ -35,8 +35,9 @@ export const LoginPage: React.FC = () => {
         className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden shadow-2xl"
       >
         <div className="hidden md:block relative">
-          <img
-            src={FALLBACK_IMAGE}
+          <SafeImage
+            sources={getImageSources(HERO_IMAGE, 'Styla Fashion')}
+            fallbackLabel="Styla"
             alt="Fashion"
             className="absolute inset-0 w-full h-full object-cover"
           />

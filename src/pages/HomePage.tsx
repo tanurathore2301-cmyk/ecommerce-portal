@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { FiArrowRight, FiTrendingUp, FiStar, FiGift, FiZap } from 'react-icons/fi';
 import { MOCK_PRODUCTS, CATEGORIES } from '@data/mockProducts';
 import { ProductGrid } from '@components/products';
-import { FALLBACK_IMAGE } from '@utils/productImages';
-import { Button } from '@components/common';
+import { HERO_IMAGE, getImageSources, getProductImageSources } from '@utils/productImages';
+import { Button, SafeImage } from '@components/common';
 
 export const HomePage: React.FC = () => {
   const clothesProducts = MOCK_PRODUCTS.filter(p => p.category === 'Clothes');
@@ -95,13 +95,18 @@ export const HomePage: React.FC = () => {
               className="hidden md:block relative"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-accent-orange to-accent-rose rounded-2xl blur-xl opacity-40 animate-glow-pulse" />
-              <motion.img
+              <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-                src={FALLBACK_IMAGE}
-                alt="Shopping"
-                className="rounded-2xl shadow-2xl relative z-10 border-4 border-white/30"
-              />
+                className="rounded-2xl shadow-2xl relative z-10 border-4 border-white/30 overflow-hidden"
+              >
+                <SafeImage
+                  sources={getImageSources(HERO_IMAGE, 'Styla Fashion')}
+                  fallbackLabel="Styla"
+                  alt="Shopping"
+                  className="w-full h-full object-cover min-h-[320px]"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -121,34 +126,48 @@ export const HomePage: React.FC = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {CATEGORIES.map((category, index) => (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -6 }}
-              >
-                <Link to={`/products?category=${category.name}`}>
-                  <div className="relative rounded-2xl overflow-hidden h-56 md:h-64 hover:shadow-glow-purple transition-all duration-300 group">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={e => { e.currentTarget.src = FALLBACK_IMAGE; }}
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-60 group-hover:opacity-70 transition-opacity`} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <div className="relative z-10 h-full flex flex-col justify-end p-6 text-white">
-                      <span className="text-3xl mb-1">{category.icon}</span>
-                      <h3 className="font-bold text-xl mb-0.5">{category.name}</h3>
-                      <p className="text-sm opacity-90">{category.productCount} products</p>
+            {CATEGORIES.map((category, index) => {
+              const categoryProducts = MOCK_PRODUCTS.filter(p => p.category === category.name).slice(0, 4);
+              return (
+                <motion.div
+                  key={category.id}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -6 }}
+                >
+                  <Link to={`/products?category=${category.name}`}>
+                    <div className="relative rounded-2xl overflow-hidden h-56 md:h-64 hover:shadow-glow-purple transition-all duration-300 group">
+                      <SafeImage
+                        sources={getImageSources(category.image, category.name, category.name)}
+                        fallbackLabel={category.name}
+                        alt={category.name}
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className={`absolute inset-0 bg-gradient-to-t ${category.color} opacity-60 group-hover:opacity-70 transition-opacity`} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                      <div className="relative z-10 h-full flex flex-col justify-end p-6 text-white">
+                        <span className="text-3xl mb-1">{category.icon}</span>
+                        <h3 className="font-bold text-xl mb-0.5">{category.name}</h3>
+                        <p className="text-sm opacity-90">{category.productCount} products</p>
+                      </div>
+                      <div className="absolute bottom-4 left-4 right-4 flex items-center gap-2">
+                        {categoryProducts.map(product => (
+                          <SafeImage
+                            key={product.id}
+                            sources={getProductImageSources(product)}
+                            fallbackLabel={product.name}
+                            alt={product.name}
+                            className="w-12 h-12 rounded-lg border border-white/70 object-cover"
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

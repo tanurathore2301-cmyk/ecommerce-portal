@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiShoppingCart, FiHeart, FiShare2 } from 'react-icons/fi';
 import { MOCK_PRODUCTS } from '@data/mockProducts';
 import { ProductGrid } from '@components/products';
-import { Button, Rating } from '@components/common';
+import { Button, Rating, SafeImage } from '@components/common';
+import { getProductImageSources } from '@utils/productImages';
 import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
 import { addToCart } from '@store/slices/cartSlice';
 import { addToWishlist, removeFromWishlist } from '@store/slices/wishlistSlice';
@@ -53,7 +54,8 @@ export const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const images = product.images || [product.image];
+  const images = product.images?.length ? product.images : [product.image];
+  const allImageSources = getProductImageSources(product);
   const relatedProducts = MOCK_PRODUCTS.filter(
     p => p.category === product.category && p.id !== product.id
   ).slice(0, 4);
@@ -81,14 +83,15 @@ export const ProductDetailPage: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
           >
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-              <img
-                src={images[selectedImage]}
+              <SafeImage
+                sources={[images[selectedImage], ...allImageSources]}
+                fallbackLabel={product.name}
                 alt={product.name}
                 className="w-full aspect-square object-cover rounded"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto">
-              {images.map((img, idx) => (
+              {images.map((imgUrl, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
@@ -98,7 +101,12 @@ export const ProductDetailPage: React.FC = () => {
                       : 'border-gray-200 dark:border-gray-700'
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover rounded" />
+                  <SafeImage
+                    src={imgUrl}
+                    fallbackLabel={product.name}
+                    alt=""
+                    className="w-full h-full object-cover rounded"
+                  />
                 </button>
               ))}
             </div>

@@ -5,7 +5,8 @@ import { FiArrowLeft, FiTrash2 } from 'react-icons/fi';
 import { useAppDispatch, useAppSelector } from '@hooks/useRedux';
 import { removeFromWishlist, clearWishlist, addToWishlist } from '@store/slices/wishlistSlice';
 import { addToCart } from '@store/slices/cartSlice';
-import { Button } from '@components/common';
+import { Button, SafeImage } from '@components/common';
+import { getProductImageSources } from '@utils/productImages';
 import { formatPrice } from '@utils/productUtils';
 import { useToast } from '@hooks/useToast';
 
@@ -79,8 +80,9 @@ export const WishlistPage: React.FC = () => {
               transition={{ delay: index * 0.05 }}
               className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
             >
-              <img
-                src={item.product.image}
+              <SafeImage
+                sources={getProductImageSources(item.product)}
+                fallbackLabel={item.product.name}
                 alt={item.product.name}
                 className="w-full h-48 object-cover"
               />
